@@ -117,7 +117,6 @@
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     padding: 2.2rem 0;
-    overflow: hidden;
     position: relative;
     transition: background 0.45s, border-color 0.45s;
   }
@@ -125,27 +124,31 @@
     text-align: center;
     font-size: 0.65rem; letter-spacing: 0.28em; text-transform: uppercase;
     color: var(--muted); margin-bottom: 1.6rem;
+    font-weight: 600;
     transition: color 0.45s;
   }
   .logos-track-wrap {
     position: relative;
     overflow: hidden;
   }
-  /* fade edges */
   .logos-track-wrap::before,
   .logos-track-wrap::after {
     content: '';
     position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2; pointer-events: none;
   }
-  .logos-track-wrap::before { left: 0; background: linear-gradient(to right, var(--logos-fade), transparent); }
-  .logos-track-wrap::after  { right: 0; background: linear-gradient(to left, var(--logos-fade), transparent); }
+  .logos-track-wrap::before { left: 0; background: linear-gradient(to right, var(--logos-fade), transparent); transition: background 0.45s; }
+  .logos-track-wrap::after  { right: 0; background: linear-gradient(to left, var(--logos-fade), transparent); transition: background 0.45s; }
 
+  /* PC : ticker auto, pause au hover */
   .logos-track {
     display: flex; align-items: center; gap: 0;
     width: max-content;
-    animation: ticker 28s linear infinite;
+    animation: ticker 32s linear infinite;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .logos-track:hover { animation-play-state: paused; }
+  .logos-track.is-paused { animation-play-state: paused; }
 
   @keyframes ticker {
     0%   { transform: translateX(0); }
@@ -157,7 +160,7 @@
     gap: 0.6rem; padding: 0 3rem;
     border-right: 1px solid var(--border);
     transition: border-color 0.45s;
-    cursor: default;
+    flex-shrink: 0;
   }
   .logo-item:last-child { border-right: none; }
 
@@ -165,28 +168,25 @@
     width: 120px; height: 48px;
     display: flex; align-items: center; justify-content: center;
     transition: transform 0.3s ease;
+    pointer-events: none;
   }
   .logo-item:hover .logo-img-wrap { transform: scale(1.08); }
+  .logo-img-wrap img {
+    max-width: 100%; max-height: 44px;
+    object-fit: contain;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+  .logo-item:hover .logo-img-wrap img { opacity: 1; }
 
-.logo-img-wrap img {
-  max-width: 100%; max-height: 44px;
-  object-fit: contain;
-  filter: none;
-  opacity: 0.6;
-  transition: filter 0.3s ease, opacity 0.3s ease;
-}
-.logo-item:hover .logo-img-wrap img {
-  filter: none;
-  opacity: 1;
-}
-  .logo-item:hover .logo-img-wrap img { filter: var(--logo-filter-hover); }
-
-  /* SVG fallback logos for companies without CDN images */
   .logo-svg {
     width: 120px; height: 44px;
     display: flex; align-items: center; justify-content: center;
     filter: var(--logo-filter);
     transition: filter 0.3s ease;
+    pointer-events: none;
   }
   .logo-item:hover .logo-svg { filter: var(--logo-filter-hover); }
   .logo-svg svg { max-width: 110px; max-height: 40px; }
@@ -195,8 +195,19 @@
     font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
     color: var(--muted); font-weight: 500;
     transition: color 0.3s;
+    pointer-events: none;
   }
   .logo-item:hover .logo-name { color: var(--accent); }
+
+  /* hint visible uniquement sur mobile */
+  .logos-hint {
+    text-align: center;
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); opacity: 0.45;
+    margin-top: 1rem;
+    display: none;
+  }
+  @media (max-width: 768px) { .logos-hint { display: block; } }
 
   /* ── SECTIONS ── */
   section { padding: 6rem 4rem; transition: background 0.45s; }
@@ -351,19 +362,27 @@
       </div>
     </div>
     <div class="hero-stats">
-      <div class="stat-card"><div class="stat-num">2+</div><div class="stat-label">Années d'expérience</div></div>
+      <div class="stat-card"><div class="stat-num">3+</div><div class="stat-label">Années d'expérience</div></div>
       <div class="stat-card"><div class="stat-num">10M+</div><div class="stat-label">Lignes de données analysées</div></div>
-      <div class="stat-card"><div class="stat-num">25+</div><div class="stat-label">Sessions de storytelling</div></div>
-      <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Entreprises internationales</div></div>
+      <div class="stat-card"><div class="stat-num">50+</div><div class="stat-label">Sessions de storytelling</div></div>
+      <div class="stat-card"><div class="stat-num">6</div><div class="stat-label">Entreprises internationales</div></div>
     </div>
   </div>
 </section>
 
 <!-- ══ LOGOS TICKER ══ -->
 <div class="logos-section">
- <b> <p class="logos-label">Entreprises avec lesquelles j'ai collaboré</p></b>
-  <div class="logos-track-wrap">
+  <p class="logos-label">Entreprises avec lesquelles j'ai collaboré</p>
+  <div class="logos-track-wrap" id="logosWrap">
     <div class="logos-track" id="logosTrack">
+
+      <!-- ACRELEC -->
+      <div class="logo-item">
+        <div class="logo-img-wrap">
+          <img src="images/Acrelec_logo.jpg" alt="Acrelec" />
+        </div>
+        <span class="logo-name">Acrelec</span>
+      </div>
 
       <!-- PITERION -->
       <div class="logo-item">
@@ -379,65 +398,50 @@
         <span class="logo-name">Piterion Group</span>
       </div>
 
+                  <div class="logo-item">
+        <div class="logo-img-wrap">
+          <img src="images/logo oddo.png" alt="ODDO BHF" />
+        </div>
+        <span class="logo-name">ODDO BHF</span>
+      </div>
+
       <!-- VOLKSWAGEN -->
-<div class="logo-item">
-  <div class="logo-img-wrap">
-    <img src="images/logo volkswagen.png" alt="Volkswagen" />
-  </div>
-  <span class="logo-name">Volkswagen</span>
-</div>
+      <div class="logo-item">
+        <div class="logo-img-wrap">
+          <img src="images/logo volkswagen.png" alt="Volkswagen" />
+        </div>
+        <span class="logo-name">Volkswagen</span>
+      </div>
 
       <!-- SUMITOMO -->
-<div class="logo-item">
-  <div class="logo-img-wrap">
-    <img src="images/logo sumitomo.jfif" alt="Sumitomo Electric" />
-  </div>
-  <span class="logo-name">Sumitomo Electric</span>
-</div>
+      <div class="logo-item">
+        <div class="logo-img-wrap">
+          <img src="images/logo sumitomo.jfif" alt="Sumitomo Electric" />
+        </div>
+        <span class="logo-name">Sumitomo Electric</span>
+      </div>
 
       <!-- EXPENSYA -->
-<div class="logo-item">
-  <div class="logo-img-wrap">
-    <img src="images/logo expensya.png" alt="Expensya" />
-  </div>
-  <span class="logo-name">Expensya</span>
-</div>
+      <div class="logo-item">
+        <div class="logo-img-wrap">
+          <img src="images/logo expensya.png" alt="Expensya" />
+        </div>
+        <span class="logo-name">Expensya</span>
+      </div>
 
       <!-- SOPRA HR -->
-<div class="logo-item">
-  <div class="logo-img-wrap">
-    <img src="images/logo sopra.png" alt="Sopra HR Software" />
-  </div>
-  <span class="logo-name">Sopra HR Software</span>
-</div>
-
-      <!-- CY TECH -->
-      <!-- <div class="logo-item">
-        <div class="logo-svg">
-          <svg viewBox="0 0 160 60" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-            <polygon points="28,8 48,40 8,40" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
-            <polygon points="28,18 40,40 16,40" fill="currentColor" opacity="0.3"/>
-            <text x="58" y="38" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="1">CY Tech</text>
-          </svg>
+      <div class="logo-item">
+        <div class="logo-img-wrap">
+          <img src="images/logo sopra.png" alt="Sopra HR Software" />
         </div>
-        <span class="logo-name">CY Tech</span>
-      </div> -->
+        <span class="logo-name">Sopra HR Software</span>
+      </div>
 
-      <!-- ESPRIT -->
-      <!-- <div class="logo-item">
-        <div class="logo-svg">
-          <svg viewBox="0 0 160 60" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-            <rect x="6" y="12" width="36" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="3"/>
-            <line x1="6" y1="26" x2="42" y2="26" stroke="currentColor" stroke-width="2"/>
-            <line x1="20" y1="26" x2="20" y2="48" stroke="currentColor" stroke-width="2"/>
-            <text x="54" y="38" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="1">ESPRIT</text>
-          </svg>
-        </div>
-        <span class="logo-name">ESPRIT</span>
-      </div> -->
 
-    </div><!-- end logos-track (JS will duplicate) -->
+
+    </div>
   </div>
+  <p class="logos-hint">← Glisser pour naviguer →</p>
 </div>
 
 <!-- EXPERIENCE -->
@@ -446,6 +450,28 @@
     <p class="section-label">Parcours professionnel</p>
     <h2 class="section-title">Expériences</h2>
     <div class="exp-list">
+
+      <!-- ACRELEC -->
+      <div class="exp-item reveal">
+        <div class="exp-date">Nov. 2025 — Présent</div>
+        <div>
+          <div class="exp-company">Acrelec</div>
+          <div class="exp-title">Référent technique Power BI · Supply Chain Data Analyst</div>
+          <div class="exp-location">📍 Paris, France</div>
+          <ul class="exp-points">
+            <li>Référent technique Power BI : diagnostic et résolution des incidents sur les rapports en production (anomalies de refresh, modifications de structure de données en source).</li>
+            <li>Gestion autonome des tâches via un système <strong>Kanban sur Notion</strong> : traduction des besoins métier en tickets priorisés pour un suivi rigoureux des livrables.</li>
+            <li>Conception de tableaux de bord <strong>Supply Chain</strong> pour le suivi et la détection des anomalies de stock sur plusieurs marchés internationaux.</li>
+            <li>Refonte complète de dashboards existants : redesign UX et optimisation des modèles de données pour améliorer les performances et la lisibilité.</li>
+            <li>Mise en place de la <strong>Row-Level Security (RLS)</strong> et administration des workspaces Power BI par filiale.</li>
+            <li>Animation de sessions de communication mensuelles avec les différents marchés pour présenter les KPIs et recueillir les besoins métier.</li>
+            <li>Sources : <strong>ERP PMI, SQL Server, Tagetik</strong>, fichiers Excel.</li>
+          </ul>
+          <span class="exp-type">CDI</span>
+        </div>
+      </div>
+
+      <!-- PITERION -->
       <div class="exp-item reveal">
         <div class="exp-date">Juil. 2024 — Oct. 2025</div>
         <div>
@@ -462,6 +488,8 @@
           <span class="exp-type">CDI</span>
         </div>
       </div>
+
+      <!-- SUMITOMO -->
       <div class="exp-item reveal">
         <div class="exp-date">Oct. 2023 — Juil. 2024</div>
         <div>
@@ -477,6 +505,8 @@
           <span class="exp-type">CDI</span>
         </div>
       </div>
+
+      <!-- EXPENSYA -->
       <div class="exp-item reveal">
         <div class="exp-date">Jan. 2023 — Juil. 2023</div>
         <div>
@@ -492,6 +522,8 @@
           <span class="exp-type">CDD</span>
         </div>
       </div>
+
+      <!-- SOPRA HR -->
       <div class="exp-item reveal">
         <div class="exp-date">Fév. 2020 — Juin 2020</div>
         <div>
@@ -506,6 +538,7 @@
           <span class="exp-type">Stage</span>
         </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -516,6 +549,7 @@
     <p class="section-label">Réalisations</p>
     <h2 class="section-title">Projets</h2>
     <div class="projects-grid">
+
       <div class="project-card reveal">
         <div class="project-preview">
           <iframe src="https://public.tableau.com/views/Analysedesventes_17669411200700/Tableaudebord1?:embed=yes&:showVizHome=no&:toolbar=no&:animate_transition=yes" scrolling="no" title="Analyse des ventes"></iframe>
@@ -541,6 +575,7 @@
           </div>
         </div>
       </div>
+
       <div class="project-card reveal">
         <div class="project-preview">
           <div class="project-preview-placeholder"><div class="preview-icon">📊</div><span>Power BI Dashboard</span></div>
@@ -564,6 +599,7 @@
           </div>
         </div>
       </div>
+
       <div class="project-card reveal">
         <div class="project-preview">
           <div class="project-preview-placeholder"><div class="preview-icon">⚙️</div><span>ETL Pipeline</span></div>
@@ -587,6 +623,7 @@
           </div>
         </div>
       </div>
+
       <div class="project-card reveal">
         <div class="project-preview">
           <div class="project-preview-placeholder"><div class="preview-icon">🚗</div><span>Automotive BI</span></div>
@@ -610,6 +647,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -636,8 +674,18 @@
     <p class="section-label">Académique</p>
     <h2 class="section-title">Formation</h2>
     <div class="edu-grid">
-      <div class="edu-card reveal"><div class="edu-degree">Master Spécialisé Business Intelligence & Analytics</div><div class="edu-school">CY Tech</div><div class="edu-location">Cergy, France</div><div class="edu-year">2025 — En cours</div></div>
-      <div class="edu-card reveal"><div class="edu-degree">Diplôme National d'Ingénieur en Informatique</div><div class="edu-school">ESPRIT</div><div class="edu-location">Ariana, Tunisie</div><div class="edu-year">2017 — 2023</div></div>
+      <div class="edu-card reveal">
+        <div class="edu-degree">Master Spécialisé Business Intelligence & Analytics</div>
+        <div class="edu-school">CY Tech | Université de Paris Cergy</div>
+        <div class="edu-location">Cergy, France</div>
+        <div class="edu-year">2025 — 2026</div>
+      </div>
+      <div class="edu-card reveal">
+        <div class="edu-degree">Diplôme National d'Ingénieur en Informatique</div>
+        <div class="edu-school">ESPRIT</div>
+        <div class="edu-location">Ariana, Tunisie</div>
+        <div class="edu-year">2017 — 2023</div>
+      </div>
     </div>
   </div>
 </section>
@@ -647,9 +695,11 @@
   <div class="section-inner">
     <div class="contact-wrap">
       <div>
-        <p class="section-label">Disponible pour un PFE</p>
-        <h2 class="contact-headline">Construisons quelque chose<br/><em>ensemble.</em></h2>
-        <p style="color:var(--muted);margin-top:1.2rem;font-size:0.9rem;max-width:380px;line-height:1.8;">Je suis à la recherche d'un PFE dans le domaine de la Data / BI. N'hésitez pas à me contacter pour discuter de votre projet.</p>
+        <p class="section-label">Ouvert aux opportunités</p>
+        <h2 class="contact-headline">Travaillons<br/><em>ensemble.</em></h2>
+        <p style="color:var(--muted);margin-top:1.2rem;font-size:0.9rem;max-width:380px;line-height:1.8;">
+          Data Analyst & BI Engineer en poste à Paris, je reste ouvert aux échanges, collaborations ou opportunités stimulantes dans la Data. N'hésitez pas à me contacter.
+        </p>
       </div>
       <div class="contact-links">
         <a href="CV_Skander_MUFTI.pdf" download="CV_Skander_MUFTI.pdf" class="contact-link cv-link">
@@ -698,16 +748,52 @@
   setTheme(localStorage.getItem('sm-theme') || 'dark');
   btn.addEventListener('click', () => setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
 
-  // ── LOGOS INFINITE TICKER ──
-  // Duplicate items for seamless loop
+  // ══════════════════════════════════════
+  // ── LOGOS TICKER ──
+  // PC  : ticker automatique infini, pause au hover
+  // Mobile : swipe tactile gauche/droite, ticker reprend après 2s
+  // ══════════════════════════════════════
   const track = document.getElementById('logosTrack');
-  const clone = track.innerHTML;
-  track.innerHTML += clone;
+  const wrap  = document.getElementById('logosWrap');
+
+  // Dupliquer pour la boucle infinie
+  track.innerHTML += track.innerHTML;
+
+  // ── MOBILE ONLY : touch swipe ──
+  let touchDown  = false;
+  let touchStartX = 0;
+  let touchScrollLeft = 0;
+  let resumeTimer = null;
+
+  wrap.addEventListener('touchstart', (e) => {
+    touchDown = true;
+    track.classList.add('is-paused');
+    touchStartX = e.touches[0].pageX - wrap.offsetLeft;
+    touchScrollLeft = wrap.scrollLeft;
+    if (resumeTimer) clearTimeout(resumeTimer);
+  }, { passive: true });
+
+  wrap.addEventListener('touchend', () => {
+    touchDown = false;
+    // Reprend le ticker automatiquement après 2s d'inactivité
+    resumeTimer = setTimeout(() => {
+      track.classList.remove('is-paused');
+    }, 2000);
+  });
+
+  wrap.addEventListener('touchmove', (e) => {
+    if (!touchDown) return;
+    const x    = e.touches[0].pageX - wrap.offsetLeft;
+    const walk = (x - touchStartX) * 1.8;
+    wrap.scrollLeft = touchScrollLeft - walk;
+  }, { passive: true });
 
   // ── SCROLL REVEAL ──
   const reveals = document.querySelectorAll('.reveal');
   const obs = new IntersectionObserver((entries) => {
-    entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 100); });
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 100);
+    });
   }, { threshold: 0.08 });
   reveals.forEach(el => obs.observe(el));
 
