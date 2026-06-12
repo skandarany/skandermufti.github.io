@@ -815,10 +815,12 @@
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
       const seconds = Math.round((Date.now() - start) / 1000);
+      
+      // On envoie l'événement à GoatCounter
       window.goatcounter.count({
-        path:  'temps-' + seconds + 's',
-        title: 'Temps passé: ' + seconds + 's',
-        event: true
+        path:  'duree-session', // Un chemin FIXE pour ne pas polluer ta liste de pages
+        title: seconds + 's',   // La valeur dynamique va dans le titre
+        event: true             // Indique bien qu'il s'agit d'un événement
       });
     }
   });
