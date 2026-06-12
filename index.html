@@ -810,21 +810,7 @@
 <script data-goatcounter="https://skandermufti.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
-<script>
-  const start = Date.now();
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      const seconds = Math.round((Date.now() - start) / 1000);
-      
-      // On envoie l'événement à GoatCounter
-      window.goatcounter.count({
-        path:  'duree-session', // Un chemin FIXE pour ne pas polluer ta liste de pages
-        title: seconds + 's',   // La valeur dynamique va dans le titre
-        event: true             // Indique bien qu'il s'agit d'un événement
-      });
-    }
-  });
-</script>
+
 
 </body>
 </html>
