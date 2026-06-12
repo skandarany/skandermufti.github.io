@@ -810,5 +810,19 @@
 <script data-goatcounter="https://skandermufti.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
+<script>
+  const start = Date.now();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      const seconds = Math.round((Date.now() - start) / 1000);
+      window.goatcounter.count({
+        path:  'temps-' + seconds + 's',
+        title: 'Temps passé: ' + seconds + 's',
+        event: true
+      });
+    }
+  });
+</script>
+
 </body>
 </html>
